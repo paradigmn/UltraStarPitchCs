@@ -178,6 +178,48 @@ public class MagnitudeSpectrum
 		LinearAlgebraUtils.VecMinMax(dataRe, dataRe.Min(), dataRe.Max(), winLen / 2 + 1);
 	}
 
+	// uses the complex fft to transform two signals simultaniously
+	public void stereoTransform(float[] dataRe, float[] dataIm, int n)
+	{
+		/* windowing */
+		float[] window = fftWin;
+		// create custom window for smaller segment processing
+		if (n < winLen)
+		{
+			window = hannWindow(n);
+		}
+		// multiply data buffer with window
+		LinearAlgebraUtils.VecMul(dataRe, window, n, 0);
+		LinearAlgebraUtils.VecMul(dataIm, window, n, 0);
+		// calculate fourier transform
+		complexFourier(dataRe, dataIm);
+		// split combined spectrum into magnitude signal spectra
+		float aRe = 0, aIm = 0, bRe = 0, bIm = 0;
+		float tmpRe = dataRe[winLen / 2 - 1];
+		float tmpIm = dataIm[winLen / 2 - 1];
+		for (int i = 1; i < winLen / 2; i++)
+		{
+			aRe = dataRe[i] + dataRe[winLen- i];
+			aIm = dataIm[i] - dataIm[winLen - i];
+			bRe = dataIm[i] + dataIm[winLen - i];
+			bIm = dataRe[winLen - i] - dataRe[i];
+			dataRe[i] = (float)Math.Sqrt(aRe * aRe + aIm * aIm);
+			dataIm[i] = (float)Math.Sqrt(bRe * bRe + bIm * bIm);
+		}
+		aRe = dataRe[winLen / 2] + tmpRe;
+		aIm = dataIm[winLen / 2] - tmpIm;
+		bRe = dataIm[winLen / 2] + tmpIm;
+		bIm = tmpRe - dataRe[winLen / 2];
+		dataRe[winLen / 2] = (float)Math.Sqrt(aRe * aRe + aIm * aIm);
+		dataIm[winLen / 2] = (float)Math.Sqrt(bRe * bRe + bIm * bIm);
+		// set unused buffer parts to zero
+		Array.Clear(dataRe, winLen / 2 + 1, winLen / 2 - 1);
+		Array.Clear(dataIm, winLen / 2 + 1, winLen / 2 - 1);
+		// scale magnitudes between 0 and 1
+		LinearAlgebraUtils.VecMinMax(dataRe, dataRe.Min(), dataRe.Max(), winLen / 2 + 1);
+		LinearAlgebraUtils.VecMinMax(dataIm, dataIm.Min(), dataIm.Max(), winLen / 2 + 1);
+	}
+
 	public Span<float> test()
 	{
 		float[] buffer = new float[2048];

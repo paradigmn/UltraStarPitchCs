@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Collections;
@@ -22,15 +23,15 @@ class Program
         // notes.saveNoteFile("/home/ruben/Testing/test.txt");
 
         AudioPreprocessor preproc = new AudioPreprocessor(
-            "/home/ruben/Workspace_home/UltraStarPitchCs/Assets/Binaries/Pca/pcaMeanFp32.npy", 
-            "/home/ruben/Workspace_home/UltraStarPitchCs/Assets/Binaries/Pca/pcaCompFp32.npy");
+            Path.Join("Assets", "Binaries", "Pca", "pcaMeanFp32.npy"),
+            Path.Join("Assets", "Binaries", "Pca", "pcaCompFp32.npy"));
 
         var watch = System.Diagnostics.Stopwatch.StartNew();
         //Parallel.ForEach(audioSegmentsIter, segment =>
         foreach (float[] segment in audioSegmentsIter)
         {
             float[][] features = preproc.transform(segment);
-            //Console.WriteLine("");
+            //Console.WriteLine(preproc.GetHashCode());
         }
 
         watch.Stop();

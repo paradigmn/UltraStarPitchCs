@@ -38,15 +38,15 @@ public class AudioPreprocessor
     // transforms an audio segment into a feature matrix
     public float[][] transform(float[] audioSegment)
     {
-        var watch = System.Diagnostics.Stopwatch.StartNew();
         // init processing buffer
         float[] procBuffer = new float[WinLen];
+        float[] procBuffer2 = new float[WinLen];
         // output matrix
         float[][] features;
         // process small segments differently
         if (audioSegment.Length < WinLen)
         {
-            features = new float[pcaCompDims[0]][];
+            features = new float[1][];
             // copy audio segment into buffer
             Buffer.BlockCopy(audioSegment, 0, procBuffer, 0, audioSegment.Length * 4);
             // fourier transform frame
@@ -58,21 +58,31 @@ public class AudioPreprocessor
         {
             // calculate number of frames
             int frameCount = (audioSegment.Length - WinLen) / Stride + 1;
-            features = new float[frameCount * pcaCompDims[0]][];
-
-            // iterate over each frame
-            for (int frameIdx = 0; frameIdx < frameCount; frameIdx++)
+            features = new float[frameCount][];
+            int frameIdx = 0;
+            // use normal fft for first frame if count is uneven
+            if ((frameCount & 1) != 0)
             {
                 // copy audio segment into buffer
-                Buffer.BlockCopy(audioSegment, frameIdx * Stride, procBuffer, 0, WinLen * 4);
+                Buffer.BlockCopy(audioSegment, frameIdx++ * Stride * 4, procBuffer, 0, WinLen * 4);
                 // fourier transform frame
                 fftMagnitudeTrafo.transform(procBuffer, WinLen);
                 // apply pca on fft frame -> generate feature row
+                features[0] = framePca(procBuffer);
+            }
+            // use stereo fft for further frames
+            for (;frameIdx < frameCount; frameIdx += 2)
+            {
+                // copy audio segment into buffer
+                Buffer.BlockCopy(audioSegment, frameIdx * Stride * 4, procBuffer, 0, WinLen * 4);
+                Buffer.BlockCopy(audioSegment, (frameIdx + 1) * Stride * 4, procBuffer2, 0, WinLen * 4);
+                // fourier transform frame
+                fftMagnitudeTrafo.stereoTransform(procBuffer, procBuffer2, WinLen);
+                // apply pca on fft frame -> generate feature row
                 features[frameIdx] = framePca(procBuffer);
+                features[frameIdx + 1] = framePca(procBuffer2);
             }
         }
-        watch.Stop();
-        Console.WriteLine(watch.ElapsedMilliseconds);
         return features;
     }
 }

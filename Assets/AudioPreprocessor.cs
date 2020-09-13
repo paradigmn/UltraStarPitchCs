@@ -10,10 +10,8 @@ public class AudioPreprocessor
     // step size for sliding fft window
     private const int Stride = 128;
     // constants for pca transformation
-    private readonly float[] pcaMean;
-    private readonly int[] pcaMeanDims;
-    private readonly float[] pcaComp;
-    private readonly int[] pcaCompDims;
+    private readonly float[] pcaMean, pcaComp;
+    private readonly int[] pcaMeanDims, pcaCompDims; 
     // object for fourier magnitude transform
     private readonly MagnitudeSpectrum fftMagnitudeTrafo;
 
@@ -27,6 +25,7 @@ public class AudioPreprocessor
         fftMagnitudeTrafo = new MagnitudeSpectrum(WinLen);
     }
 
+    // reduce feature size by applying a pca
     private float[] framePca(float[] procBuffer)
     {
         // substract pca mean values from data

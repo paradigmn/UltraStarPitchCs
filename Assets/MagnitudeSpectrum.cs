@@ -10,7 +10,7 @@ public class MagnitudeSpectrum
     private readonly int[] idxTable;
     // fft window
     private readonly float[] fftWin;
-    // twid factors
+    // twiddle factors
     private readonly float[] twidRe;
     private readonly float[] twidIm;
 	// vector length for simd floating point operations

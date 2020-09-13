@@ -37,19 +37,19 @@ class Program
         watch.Stop();
         Console.WriteLine(watch.ElapsedMilliseconds);
 
-        // Random rand = new Random(); 
-        // float[] test = new float[2048];
-        // for (int i = 0; i < 2048; i++)
-        // {
-        //     test[i] = (float)rand.NextDouble();
-        // }
+        Random rand = new Random(); 
+        float[] test = new float[2048];
+        for (int i = 0; i < 2048; i++)
+        {
+            test[i] = (float)rand.NextDouble() * (float)Math.Pow(-1d, i);
+        }
 
         // watch = System.Diagnostics.Stopwatch.StartNew();
         // float test2 = test.Max();
         // watch.Stop();
         // Console.WriteLine(watch.ElapsedTicks);
         // watch = System.Diagnostics.Stopwatch.StartNew();
-        // float test1 = LinearAlgebraUtils.VecMaximum(test);
+        LinearAlgebraUtils.VecReLu(test);
         // watch.Stop();
         // Console.WriteLine(watch.ElapsedTicks);
 

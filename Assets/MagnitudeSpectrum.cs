@@ -219,11 +219,4 @@ public class MagnitudeSpectrum
 		LinearAlgebraUtils.VecMinMax(dataRe, dataRe.Min(), dataRe.Max(), winLen / 2 + 1);
 		LinearAlgebraUtils.VecMinMax(dataIm, dataIm.Min(), dataIm.Max(), winLen / 2 + 1);
 	}
-
-	public Span<float> test()
-	{
-		float[] buffer = new float[2048];
-
-		return new Span<float>(buffer, 10, 100);
-	}
 }

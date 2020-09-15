@@ -117,6 +117,23 @@ public static class LinearAlgebraUtils
         }  
     }
 
+    public static void VecMul(ReadOnlySpan<float> a, float[] b, float[] output, int n)
+    {
+        int i;
+        for (i = 0; i < n - simdLenFp32; i += simdLenFp32)
+        {
+            // run simd vectors multiplication
+            Vector<float> vecA = new Vector<float>(a.Slice(i));
+            Vector<float> vecB = new Vector<float>(b, i);
+            Vector.Multiply(vecA, vecB).CopyTo(output, i);
+        }
+        for (; i < n; i++)  
+        {
+            // run normal multiplication for remaining values
+            output[i] *= b[i];
+        }  
+    }
+
     // dot product of two arrays with length n
     public static float VecDot(float[] a, float[] b, int n, int aOffset)
     {

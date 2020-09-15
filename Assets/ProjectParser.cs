@@ -18,8 +18,7 @@ public class ProjectParser
     // property for file meta data
     public Dictionary<string, string> Meta { get => meta; set => meta = value; }
     // song as mono float array
-    float[] samplesMono;
-
+    float[] samplesMono; 
     // parse note.txt file for pitch and timing information
     public void loadNoteFile(string noteFile)
     {
@@ -94,6 +93,48 @@ public class ProjectParser
             yield return samplesMono[startSample..endSample];
         }
     }
+
+    // load a mono wav file with 16000Hz sample rate
+    // returns an iterator which defines audio segment positions <start, length>
+    // ref.: https://www.it-swarm.dev/de/c%23/so-lesen-sie-die-daten-einer-wav-datei-ein-array/940898607/
+    public IEnumerable<Tuple<int, int>> readMonoWav16x(string wavFile)
+    {
+        // start with file in byte representation
+        byte[] wav = File.ReadAllBytes(wavFile);
+        // get past all the other sub chunks to get to the data subchunk:
+        // first subchunk id from 12 to 16
+        int offset = 12;
+        // keep iterating until we find the data chunk (i.e. 64 61 74 61 ...... (i.e. 100 97 116 97 in decimal))
+        while(!(wav[offset] == 100 && wav[offset + 1] == 97 && wav[offset + 2] == 116 && wav[offset + 3] == 97))
+        {
+            offset += 4;
+            int chunkSize = wav[offset] + (wav[offset + 1] << 8) + (wav[offset + 2] << 16) + (wav[offset + 3] << 24);
+            offset += 4 + chunkSize;
+        }
+        offset += 8;
+        // offset is now positioned to start of actual sound data.
+        samplesMono = new float[(wav.Length - offset) / 2];
+        // convert to float array
+        // 2 bytes per sample (16 bit sound mono)
+        for (int i = offset, j = 0; i < wav.Length - offset; i += 2)
+        {
+            samplesMono[j++] = (float)(((sbyte)wav[i + 1] << 8) | wav[i]);
+        }
+        // create iterator for audio segment positions
+        foreach (Dictionary<string, float> segment in singables)
+        {
+            int startIdx = (int)(Math.Round((segment["t_start"] * SR) / 1000));
+            int segmentLen = (int)(Math.Round((segment["t_end"] * SR) / 1000)) - startIdx;
+            yield return new Tuple<int, int>(startIdx, segmentLen);
+        }
+
+    }
+
+    // return a segment from a loaded audio file
+    public ReadOnlySpan<float> getAudioSegment(Tuple<int, int> segmentDef)
+	{
+		return new ReadOnlySpan<float>(samplesMono, segmentDef.Item1, segmentDef.Item2);
+	}
 
     // return a list of all singable pitches
     public List<float> dumpPitches()

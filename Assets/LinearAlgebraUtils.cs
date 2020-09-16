@@ -15,6 +15,7 @@ public static class LinearAlgebraUtils
     // this implementation only considers arrays with dtype double to keep it simple
     // only a 1d array is returned, since multi dimension arrays are painfully slow in c#
     // ref.: https://github.com/numpy/numpy/blob/067cb067cb17a20422e51da908920a4fbb3ab851/doc/neps/nep-0001-npy-format.rst
+    // note: the parser assumes the array to be in c contiguous order (fortran order leads to problems that are nasty to debug!) 
     public static void loadNdarray(string numpyFile, out float[] ndarray, out int[] dims)
     {
         // start with file in byte representation
@@ -196,7 +197,7 @@ public static class LinearAlgebraUtils
             Vector<float> vecV = new Vector<float>(v, i);
             Vector.Max(vecZ, vecV).CopyTo(v, i);
         }
-        for (; i < v.Length; i++)
+        for (; i < n; i++)
         {
             v[i] = Math.Max(0f, v[i]);
         }

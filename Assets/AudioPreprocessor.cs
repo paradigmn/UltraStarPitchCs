@@ -8,7 +8,7 @@ public class AudioPreprocessor
     // length of fft transformation window (power of two)
     private const int WinLen = 2048;
     // step size for sliding fft window
-    private const int Stride = 128;
+    private const int Stride = 512;
     // constants for pca transformation
     private readonly float[] pcaMean, pcaComp;
     private readonly int[] pcaMeanDims, pcaCompDims; 

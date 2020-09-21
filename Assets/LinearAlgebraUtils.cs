@@ -12,10 +12,8 @@ public static class LinearAlgebraUtils
     private static int simdLenFp32 = Vector<float>.Count;
 
     // a minimal parser for numpys .npy files (numeric data container)
-    // this implementation only considers arrays with dtype double to keep it simple
+    // this implementation just expects arrays with dtype float in c contiguous order
     // only a 1d array is returned, since multi dimension arrays are painfully slow in c#
-    // ref.: https://github.com/numpy/numpy/blob/067cb067cb17a20422e51da908920a4fbb3ab851/doc/neps/nep-0001-npy-format.rst
-    // note: the parser assumes the array to be in c contiguous order (fortran order leads to problems that are nasty to debug!) 
     public static void loadNdarray(string numpyFile, out float[] ndarray, out int[] dims)
     {
         // start with file in byte representation
@@ -46,7 +44,7 @@ public static class LinearAlgebraUtils
         Buffer.BlockCopy(npy, offset, ndarray, 0, ndarrayLen * 4);
     }
 
-    // elementwise addition (a += b) for n components
+    // element wise addition (a += b) for n components
     public static void VecAdd(float[] a, float[] b, int n)
     {
         int i;
@@ -64,7 +62,7 @@ public static class LinearAlgebraUtils
         }  
     }
 
-    // elementwise substaction (a -= b) for n components
+    // element wise substaction (a -= b) for n components
     public static void VecSub(float[] a, float[] b, int n)
     {
         int i;
@@ -82,7 +80,7 @@ public static class LinearAlgebraUtils
         }  
     }
 
-    // elementwise multiplication (a *= b) for n components
+    // element wise multiplication (a *= b) for n components
     public static void VecMul(float[] a, float[] b, int n)
     {
         int i;
@@ -100,7 +98,7 @@ public static class LinearAlgebraUtils
         }  
     }
 
-    // elementwise multiplication (a *= b) for n components with offset
+    // element wise multiplication (a *= b) for n components with offset
     public static void VecMul(float[] a, float[] b, int n, int aOffset)
     {
         int i;
@@ -155,7 +153,7 @@ public static class LinearAlgebraUtils
         return sum;
     }
 
-    // elementwise min-max-scaling (a = (b - min) / (max - min)) for n components
+    // element wise min-max-scaling (a = (b - min) / (max - min)) for n components
     public static void VecMinMax(float[] v, float min, float max, int n)
     {
         Vector<float> vecMin = new Vector<float>(min);

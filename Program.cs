@@ -37,8 +37,8 @@ class Program
         foreach (float[] segment in audioSegmentsIter)
         {
             float[][] features = preproc.transform(segment);
-            float[] pitchesProb = clf.predict(features[0]);
-            Console.WriteLine(preproc.GetHashCode());
+            int pitch = clf.predictBatch(features);
+            Console.WriteLine(pitch);
         }
 
         watch.Stop();

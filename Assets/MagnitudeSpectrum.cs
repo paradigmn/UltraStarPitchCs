@@ -81,6 +81,8 @@ public class MagnitudeSpectrum
         return window;
     }
 
+	// inplace simd radix-2 fft implementation
+	// ref.: https://github.com/swharden/FftSharp/blob/master/src/FftSharp/Transform.cs
 	private void complexFourier(float[] dataRe, float[] dataIm)
 	{
 		// rearange data buffer in bit reversed order

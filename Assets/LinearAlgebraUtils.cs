@@ -2,8 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
 public static class LinearAlgebraUtils
@@ -156,8 +154,10 @@ public static class LinearAlgebraUtils
     // element wise min-max-scaling (a = (b - min) / (max - min)) for n components
     public static void VecMinMax(float[] v, float min, float max, int n)
     {
+        // add a small delta to avoid zero devision
+        max = (max - min) + Single.Epsilon;
         Vector<float> vecMin = new Vector<float>(min);
-        Vector<float> vecMax = new Vector<float>(max) - vecMin;
+        Vector<float> vecMax = new Vector<float>(max);
         int i;
         for (i = 0; i < n - simdLenFp32; i += simdLenFp32)
         {
